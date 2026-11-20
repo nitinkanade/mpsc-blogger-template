@@ -1,4 +1,6 @@
-const { createPost } = require('./blogger_tool.js');
+const { createPost, updatePost } = require('./blogger_tool.js');
+
+const POST_ID = '4539584964627770200';
 
 // -----------------------------------------------------------------------------
 // AUTHENTIC MPSC QUESTIONS DATASET (15 High-Yield Questions across 5 Subjects)
@@ -223,21 +225,8 @@ const examData = {
 // COMPILE COMPLETE INTERACTIVE EXAM APPLICATION HTML + SEO STRUCTURED DATA
 // -----------------------------------------------------------------------------
 function buildFullExamPost(data) {
-  const jsonEncodedData = JSON.stringify(data).replace(/</g, '\\u003c');
-
-  // FAQ Schema for SEO Rich Results
-  const faqSchema = {
-    "@context": "https://schema.org",
-    "@type": "FAQPage",
-    "mainEntity": data.questions.map(q => ({
-      "@type": "Question",
-      "name": `MPSC सराव प्रश्न: ${q.question}`,
-      "acceptedAnswer": {
-        "@type": "Answer",
-        "text": `योग्य उत्तर: पर्याय (${['A','B','C','D'][q.correctAnswer]}) ${q.options[q.correctAnswer]}. स्पष्टीकरण: ${q.explanation}`
-      }
-    }))
-  };
+  // Base64 encode JSON to completely prevent Blogger from escaping Devanagari text into entities
+  const base64Data = Buffer.from(JSON.stringify(data), 'utf8').toString('base64');
 
   return `
 <div class="mpsc-exam-app" id="mpscExamApp" style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;">
@@ -257,20 +246,20 @@ function buildFullExamPost(data) {
         </div>
       </div>
       <div id="examTopRightControls" style="display: flex; gap: 8px;">
-        <button id="btnStartExamMode" type="button" style="background: #10b981; color: #ffffff; border: none; padding: 10px 20px; border-radius: 8px; font-weight: 700; font-size: 15px; cursor: pointer; display: flex; align-items: center; gap: 6px; box-shadow: 0 2px 6px rgba(16,185,129,0.3);">
-          ⏱️ ऑनलाइन परीक्षा सुरू करा
+        <button id="btnStartExamMode" type="button" style="background: #10b981; color: #ffffff; border: none; padding: 11px 22px; border-radius: 8px; font-weight: 700; font-size: 15px; cursor: pointer; display: flex; align-items: center; gap: 6px; box-shadow: 0 2px 6px rgba(16,185,129,0.3);">
+          <span>⏱️</span> <span>ऑनलाइन परीक्षा सुरू करा</span>
         </button>
       </div>
     </div>
   </div>
 
-  <!-- LIVE EXAM SIMULATOR CONTAINER (Initially Active / Toggleable) -->
+  <!-- LIVE EXAM SIMULATOR CONTAINER (Initially Hidden until user clicks Start) -->
   <div id="examSimulatorBox" style="display: none; background: #ffffff; border: 1px solid #cbd5e1; border-radius: 12px; padding: 22px; margin-bottom: 25px; box-shadow: 0 4px 15px rgba(0,0,0,0.06);">
     
     <!-- Timer & Live Header -->
     <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #e2e8f0; padding-bottom: 14px; margin-bottom: 20px; flex-wrap: wrap; gap: 10px;">
       <div>
-        <span id="examCurrentSubjectBadge" style="background: #e0e7ff; color: #3730a3; padding: 4px 10px; border-radius: 6px; font-weight: 600; font-size: 13px;">
+        <span id="examCurrentSubjectBadge" style="background: #e0e7ff; color: #3730a3; padding: 5px 12px; border-radius: 6px; font-weight: 700; font-size: 14px;">
           विषय: इतिहास
         </span>
         <span id="examQCounterText" style="margin-left: 10px; font-weight: 700; color: #334155; font-size: 15px;">
@@ -281,7 +270,7 @@ function buildFullExamPost(data) {
         <div id="examTimerBadge" style="background: #fef2f2; border: 1px solid #fecaca; color: #dc2626; padding: 6px 14px; border-radius: 8px; font-weight: 700; font-size: 16px; font-variant-numeric: tabular-nums;">
           ⏱️ 15:00
         </div>
-        <button id="btnFinishExamTop" type="button" style="background: #dc2626; color: white; border: none; padding: 6px 14px; border-radius: 6px; font-weight: 600; cursor: pointer; font-size: 14px;">
+        <button id="btnFinishExamTop" type="button" style="background: #dc2626; color: white; border: none; padding: 7px 16px; border-radius: 6px; font-weight: 700; cursor: pointer; font-size: 14px;">
           पेपर सबमिट करा
         </button>
       </div>
@@ -373,7 +362,7 @@ function buildFullExamPost(data) {
             <th style="padding: 10px 12px; border-bottom: 1px solid #cbd5e1;">बरोबर (✓)</th>
             <th style="padding: 10px 12px; border-bottom: 1px solid #cbd5e1;">चूक (✗)</th>
             <th style="padding: 10px 12px; border-bottom: 1px solid #cbd5e1;">गुण (Marks)</th>
-            <th style="padding: 10px 12px; border-bottom: 19px solid #cbd5e1;">अचूकता</th>
+            <th style="padding: 10px 12px; border-bottom: 1px solid #cbd5e1;">अचूकता</th>
           </tr>
         </thead>
         <tbody id="resSubjectTableBody">
@@ -470,6 +459,8 @@ function buildSolutionsHtml(data) {
 // CLIENT-SIDE EXAM CONTROLLER SCRIPT (LIGHTWEIGHT VANILLA JS, 0 LIBRARIES)
 // -----------------------------------------------------------------------------
 function buildExamControllerJs(data) {
+  const base64Data = Buffer.from(JSON.stringify(data), 'utf8').toString('base64');
+
   return `
     </div> <!-- End qa-list -->
   </div> <!-- End fullSolutionsSection -->
@@ -509,8 +500,32 @@ function buildExamControllerJs(data) {
   <!-- Interactive Exam Simulation Engine -->
   <script type="text/javascript">
   (function initMpscExamSimulator() {
-    var examData = ${JSON.stringify(data)};
-    var userAnswers = {}; // { 0: 1, 1: 3 }
+    // Decode base64 UTF-8 JSON safely without any Blogger HTML entity interference
+    function decodeBase64Data(b64) {
+      try {
+        var binary = atob(b64);
+        var bytes = new Uint8Array(binary.length);
+        for (var i = 0; i < binary.length; i++) {
+          bytes[i] = binary.charCodeAt(i);
+        }
+        return JSON.parse(new TextDecoder('utf-8').decode(bytes));
+      } catch (e) {
+        return null;
+      }
+    }
+
+    // HTML Entity Decoder helper (converts &#2367; back to true Marathi characters)
+    function decodeStr(str) {
+      if (!str) return '';
+      return String(str).replace(/&#(\\d+);/g, function(match, dec) {
+        return String.fromCodePoint(dec);
+      });
+    }
+
+    var examData = decodeBase64Data("${base64Data}");
+    if (!examData) return;
+
+    var userAnswers = {};
     var markedReview = {};
     var currentQIndex = 0;
     var timerInterval = null;
@@ -555,18 +570,25 @@ function buildExamControllerJs(data) {
       }
     }
 
-    // Show Question
+    // Show Question with clean Marathi rendering
     function showQuestion(idx) {
       if (idx < 0 || idx >= examData.questions.length) return;
       currentQIndex = idx;
       var q = examData.questions[idx];
 
-      document.getElementById('examCurrentSubjectBadge').textContent = 'विषय: ' + q.subject;
-      document.getElementById('examQCounterText').textContent = 'प्रश्न ' + (idx + 1) + ' / ' + examData.questions.length;
+      var subBadge = document.getElementById('examCurrentSubjectBadge');
+      if (subBadge) {
+        subBadge.innerHTML = 'विषय: ' + decodeStr(q.subject);
+      }
+
+      var qCounter = document.getElementById('examQCounterText');
+      if (qCounter) {
+        qCounter.innerHTML = 'प्रश्न ' + (idx + 1) + ' / ' + examData.questions.length;
+      }
 
       var html = '<div style="font-weight: 700; font-size: 17px; color: #0f172a; margin-bottom: 16px; line-height: 1.5;">' +
                  '<span style="background: #e0e7ff; color: #3730a3; padding: 2px 8px; border-radius: 4px; margin-right: 8px; font-size: 14px;">Q.' + (idx + 1) + '</span>' +
-                 q.question + '</div>';
+                 decodeStr(q.question) + '</div>';
 
       html += '<div style="display: grid; gap: 10px;">';
       for (var optIdx = 0; optIdx < q.options.length; optIdx++) {
@@ -577,7 +599,7 @@ function buildExamControllerJs(data) {
         var textColor = isSelected ? '#1e40af' : '#334155';
 
         html += '<div class="sim-option-item" data-opt-idx="' + optIdx + '" style="padding: 12px 16px; border: ' + border + '; border-radius: 8px; background: ' + bg + '; color: ' + textColor + '; font-size: 15px; font-weight: ' + (isSelected ? '700' : '500') + '; cursor: pointer; user-select: none;">' +
-                '<strong>(' + letter + ')</strong> ' + q.options[optIdx] +
+                '<strong>(' + letter + ')</strong> ' + decodeStr(q.options[optIdx]) +
                 '</div>';
       }
       html += '</div>';
@@ -611,7 +633,7 @@ function buildExamControllerJs(data) {
         secondsLeft--;
         var m = Math.floor(secondsLeft / 60);
         var s = secondsLeft % 60;
-        timerBadge.textContent = '⏱️ ' + (m < 10 ? '0' : '') + m + ':' + (s < 10 ? '0' : '') + s;
+        timerBadge.innerHTML = '⏱️ ' + (m < 10 ? '0' : '') + m + ':' + (s < 10 ? '0' : '') + s;
 
         if (secondsLeft <= 0) {
           clearInterval(timerInterval);
@@ -672,6 +694,7 @@ function buildExamControllerJs(data) {
 
       examData.questions.forEach(function(q, idx) {
         var sub = q.subject;
+        if (!subjectStats[sub]) subjectStats[sub] = { total: 0, correct: 0, wrong: 0 };
         subjectStats[sub].total++;
 
         if (userAnswers[idx] !== undefined) {
@@ -692,22 +715,22 @@ function buildExamControllerJs(data) {
       var accuracy = attemptedCount > 0 ? ((correctCount / attemptedCount) * 100).toFixed(1) + '%' : '0%';
 
       // Display metrics
-      document.getElementById('resMetricScore').textContent = netScore.toFixed(2) + ' / ' + examData.totalMarks;
-      document.getElementById('resMetricAccuracy').textContent = accuracy;
-      document.getElementById('resMetricAttempted').textContent = attemptedCount + ' / ' + examData.questions.length;
-      document.getElementById('resMetricNegative').textContent = '-' + negMarks.toFixed(2);
+      document.getElementById('resMetricScore').innerHTML = netScore.toFixed(2) + ' / ' + examData.totalMarks;
+      document.getElementById('resMetricAccuracy').innerHTML = accuracy;
+      document.getElementById('resMetricAttempted').innerHTML = attemptedCount + ' / ' + examData.questions.length;
+      document.getElementById('resMetricNegative').innerHTML = '-' + negMarks.toFixed(2);
 
       // Render Subject Table
       var tbody = document.getElementById('resSubjectTableBody');
       tbody.innerHTML = '';
       examData.subjects.forEach(function(sub) {
-        var st = subjectStats[sub];
+        var st = subjectStats[sub] || { total: 0, correct: 0, wrong: 0 };
         var subMarks = (st.correct * examData.marksPerQuestion) - (st.wrong * examData.negativePenalty);
         var subAcc = (st.correct + st.wrong) > 0 ? ((st.correct / (st.correct + st.wrong)) * 100).toFixed(0) + '%' : '-';
 
         var tr = document.createElement('tr');
         tr.style.borderBottom = '1px solid #e2e8f0';
-        tr.innerHTML = '<td style="padding: 10px 12px; font-weight:600; color:#1e293b;">' + sub + '</td>' +
+        tr.innerHTML = '<td style="padding: 10px 12px; font-weight:600; color:#1e293b;">' + decodeStr(sub) + '</td>' +
                        '<td style="padding: 10px 12px;">' + st.total + '</td>' +
                        '<td style="padding: 10px 12px; color:#047857; font-weight:bold;">' + st.correct + '</td>' +
                        '<td style="padding: 10px 12px; color:#dc2626; font-weight:bold;">' + st.wrong + '</td>' +
@@ -723,7 +746,7 @@ function buildExamControllerJs(data) {
 
       // WhatsApp Share Click Handler
       document.getElementById('btnShareScoreWhatsApp').onclick = function() {
-        var text = 'मी MPSC GS सराव परीक्षेत ' + examData.totalMarks + ' पैकी ' + netScore.toFixed(2) + ' गुण (' + accuracy + ' अचूकता) मिळवले! तुम्ही किती गुण मिळवू शकता? आत्ताच टेस्ट द्या: ' + window.location.href;
+        var text = decodeStr('मी MPSC GS सराव परीक्षेत ' + examData.totalMarks + ' पैकी ' + netScore.toFixed(2) + ' गुण (' + accuracy + ' अचूकता) मिळवले! तुम्ही किती गुण मिळवू शकता? आत्ताच टेस्ट द्या: ') + window.location.href;
         window.open('https://api.whatsapp.com/send?text=' + encodeURIComponent(text), '_blank');
       };
 
@@ -744,9 +767,9 @@ function buildExamControllerJs(data) {
 `;
 }
 
-async function publishLiveExamPaper() {
+async function updateLiveExamPaper() {
   try {
-    console.log('Building MPSC Live Exam Paper...');
+    console.log('Building and updating MPSC Live Exam Paper with entity decoding...');
     const topHtml = buildFullExamPost(examData);
     const questionsHtml = buildSolutionsHtml(examData);
     const controllerHtml = buildExamControllerJs(examData);
@@ -755,19 +778,19 @@ async function publishLiveExamPaper() {
     const title = "MPSC Combine & Rajyaseva GS Mock Exam 2026: Official PYQ Full Test with Live Scorecard & Analysis";
     const labels = ["MPSC Prelims", "Mock Tests", "PYQ Solutions", "Exam Analysis", "Daily Quiz"];
 
-    console.log(`Publishing post: "${title}"...`);
-    const result = await createPost(title, fullContent, labels);
+    console.log(`Updating post ID ${POST_ID}...`);
+    const result = await updatePost(POST_ID, title, fullContent, labels);
 
     if (result.status === 200) {
-      console.log('SUCCESS! Live Exam Paper Published.');
+      console.log('SUCCESS! Live Exam Paper Updated with clean Devanagari text.');
       console.log('Post URL:', result.data.url);
       return result.data;
     } else {
-      console.error('Failed to publish exam post:', result);
+      console.error('Failed to update exam post:', result);
     }
   } catch (err) {
-    console.error('Error during exam post publish:', err);
+    console.error('Error during exam post update:', err);
   }
 }
 
-publishLiveExamPaper();
+updateLiveExamPaper();

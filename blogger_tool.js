@@ -184,6 +184,37 @@ async function createPost(title, content, labels = []) {
   });
 }
 
+async function updatePost(postId, title, content, labels = []) {
+  const token = await getValidAccessToken();
+  const body = JSON.stringify({
+    kind: 'blogger#post',
+    id: postId,
+    title: title,
+    content: content,
+    labels: labels
+  });
+  return new Promise((resolve, reject) => {
+    const parsed = new URL(`https://www.googleapis.com/blogger/v3/blogs/${BLOG_ID}/posts/${postId}`);
+    const req = https.request({
+      hostname: parsed.hostname,
+      path: parsed.pathname,
+      method: 'PUT',
+      headers: {
+        'Authorization': 'Bearer ' + token,
+        'Content-Type': 'application/json',
+        'Content-Length': Buffer.byteLength(body)
+      }
+    }, res => {
+      let b = '';
+      res.on('data', c => b += c);
+      res.on('end', () => resolve({ status: res.statusCode, data: JSON.parse(b) }));
+    });
+    req.on('error', reject);
+    req.write(body);
+    req.end();
+  });
+}
+
 function startAuthServer() {
   const authUrl = getAuthUrl();
   console.log('\n======================================================');
@@ -232,4 +263,4 @@ if (cmd === 'login') {
   listPages();
 }
 
-module.exports = { getAuthUrl, exchangeCode, getValidAccessToken, listPages, createPage, createPost };
+module.exports = { getAuthUrl, exchangeCode, getValidAccessToken, listPages, createPage, createPost, updatePost };
