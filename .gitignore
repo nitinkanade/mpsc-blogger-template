@@ -1,0 +1,10 @@
+# Google Blogger OAuth Tokens & Credentials
+blogger_token.json
+blogger_credentials.json
+
+# Environment and Logs
+.env
+*.log
+node_modules/
+.DS_Store
+Thumbs.db
