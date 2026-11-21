@@ -1242,6 +1242,12 @@ table {
   border-radius: var(--radius-md);
   padding: 1.25rem;
   margin: 1.5rem 0;
+  box-shadow: var(--shadow-sm);
+  transition: border-color var(--transition-fast);
+}
+
+.qa-item:hover {
+  border-color: var(--border-hover);
 }
 
 .qa-question {
@@ -1249,23 +1255,65 @@ table {
   font-size: 1rem;
   color: var(--text-main);
   margin-bottom: 0.75rem;
+  line-height: 1.6;
 }
 
 .qa-options {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
-  gap: 0.5rem;
+  gap: 0.625rem;
   margin-bottom: 1rem;
 }
 
 .qa-option {
   background-color: var(--bg-surface);
-  border: 1px solid var(--border-color);
-  padding: 0.5rem 0.75rem;
+  border: 1.5px solid var(--border-color);
+  padding: 0.625rem 0.875rem;
   border-radius: var(--radius-sm);
-  font-size: 0.875rem;
+  font-size: 0.9375rem;
+  cursor: pointer;
+  transition: all 0.15s ease-in-out;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  user-select: none;
 }
 
+.qa-option:hover {
+  border-color: var(--primary);
+  background-color: var(--primary-light);
+}
+
+.qa-option.opt-correct {
+  background-color: #ecfdf5 !important;
+  border-color: #059669 !important;
+  color: #065f46 !important;
+  font-weight: 600;
+}
+
+.qa-option.opt-correct::after {
+  content: " ✓ योग्य";
+  margin-left: auto;
+  color: #059669;
+  font-weight: 700;
+  font-size: 0.8125rem;
+}
+
+.qa-option.opt-incorrect {
+  background-color: #fef2f2 !important;
+  border-color: #dc2626 !important;
+  color: #991b1b !important;
+}
+
+.qa-option.opt-incorrect::after {
+  content: " ✗ अयोग्य";
+  margin-left: auto;
+  color: #dc2626;
+  font-weight: 700;
+  font-size: 0.8125rem;
+}
+
+/* Button & Native Details Accordion Support */
 .qa-toggle-btn {
   display: inline-flex;
   align-items: center;
@@ -1277,7 +1325,9 @@ table {
   border: 1px solid var(--primary);
   padding: 0.375rem 0.75rem;
   border-radius: var(--radius-sm);
+  cursor: pointer;
   transition: all var(--transition-fast);
+  user-select: none;
 }
 
 .qa-toggle-btn:hover {
@@ -1285,19 +1335,60 @@ table {
   color: #ffffff;
 }
 
+details.qa-explanation-box {
+  margin-top: 0.85rem;
+  border: none;
+}
+
+details.qa-explanation-box summary.qa-toggle-btn {
+  list-style: none;
+}
+
+details.qa-explanation-box summary.qa-toggle-btn::-webkit-details-marker {
+  display: none;
+}
+
+details.qa-explanation-box[open] summary.qa-toggle-btn {
+  background-color: var(--primary-light);
+  border-color: var(--primary);
+  color: var(--primary);
+  margin-bottom: 0.5rem;
+}
+
 .qa-answer {
   display: none;
   margin-top: 0.75rem;
-  padding: 0.75rem;
+  padding: 0.875rem 1rem;
   background-color: #ecfdf5;
-  border-left: 3px solid #047857;
-  border-radius: 4px;
+  border-left: 4px solid #059669;
+  border-radius: var(--radius-sm);
   font-size: 0.875rem;
   color: #064e3b;
+  line-height: 1.6;
 }
 
-.qa-answer.is-visible {
+.qa-answer.is-visible,
+details.qa-explanation-box[open] .qa-answer,
+details.qa-explanation-box .qa-answer {
   display: block;
+}
+
+[data-theme='dark'] .qa-answer {
+  background-color: rgba(6, 78, 59, 0.25);
+  border-left-color: #10b981;
+  color: #a7f3d0;
+}
+
+[data-theme='dark'] .qa-option.opt-correct {
+  background-color: rgba(5, 150, 105, 0.2) !important;
+  border-color: #10b981 !important;
+  color: #a7f3d0 !important;
+}
+
+[data-theme='dark'] .qa-option.opt-incorrect {
+  background-color: rgba(220, 38, 38, 0.2) !important;
+  border-color: #f87171 !important;
+  color: #fca5a5 !important;
 }
 
 /* PDF Download Button */
@@ -3914,10 +4005,8 @@ body#layout .section {
         }
       });
     }
-    }, 20);
 
     /* 7. Automatic Collapsible Table of Contents (TOC) */
-    setTimeout(function() {
     var articleBody = document.getElementById('articleBody');
     var tocBox = document.getElementById('autoTocBox');
     var tocList = document.getElementById('tocList');
@@ -3965,16 +4054,72 @@ body#layout .section {
       });
     }
 
-    /* 9. Interactive MCQ Question / Answer Reveal */
+    /* 9. Interactive MCQ Question Option Click & Answer Reveal */
     document.addEventListener('click', function(e) {
+      // 9a. Handle student clicking an MCQ option (Instant Feedback)
+      var opt = e.target.closest('.qa-option');
+      if (opt) {
+        var item = opt.closest('.qa-item');
+        if (item) {
+          var correctOpt = (item.getAttribute('data-correct') || '').toUpperCase().trim();
+          var chosenOpt = (opt.getAttribute('data-opt') || '').toUpperCase().trim();
+          var allOpts = item.querySelectorAll('.qa-option');
+
+          allOpts.forEach(function(o) {
+            o.classList.remove('opt-selected', 'opt-correct', 'opt-incorrect');
+            var thisOpt = (o.getAttribute('data-opt') || '').toUpperCase().trim();
+            if (correctOpt && thisOpt === correctOpt) {
+              o.classList.add('opt-correct');
+            }
+          });
+
+          if (chosenOpt && correctOpt) {
+            if (chosenOpt === correctOpt) {
+              opt.classList.add('opt-correct');
+            } else {
+              opt.classList.add('opt-incorrect');
+            }
+          } else {
+            opt.classList.add('opt-selected');
+          }
+
+          // Auto-expand details or show .qa-answer
+          var detailsBox = item.querySelector('details.qa-explanation-box');
+          if (detailsBox) {
+            detailsBox.open = true;
+          } else {
+            var ans = item.querySelector('.qa-answer');
+            if (ans) {
+              ans.classList.add('is-visible');
+              ans.style.display = 'block';
+            }
+          }
+        }
+        return;
+      }
+
+      // 9b. Handle toggle button click
       var btn = e.target.closest('.qa-toggle-btn');
       if (btn) {
-        var item = btn.closest('.qa-item');
-        if (item) {
-          var ans = item.querySelector('.qa-answer');
-          if (ans) {
-            var isVisible = ans.classList.toggle('is-visible');
-            btn.textContent = isVisible ? 'Hide Answer & Explanation' : 'Show Answer & Explanation';
+        // If it's a summary element, native browser <details> handles it automatically
+        if (btn.tagName.toLowerCase() !== 'summary') {
+          e.preventDefault();
+          var item = btn.closest('.qa-item');
+          if (item) {
+            var ans = item.querySelector('.qa-answer');
+            if (ans) {
+              var isVisible = ans.classList.toggle('is-visible');
+              if (ans.style.display === 'block') {
+                ans.style.display = 'none';
+                isVisible = false;
+              } else if (ans.style.display === 'none') {
+                ans.style.display = 'block';
+                isVisible = true;
+              } else {
+                ans.style.display = isVisible ? 'block' : 'none';
+              }
+              btn.textContent = isVisible ? 'उत्तर लपवा (Hide Answer)' : '👉 उत्तर आणि सविस्तर स्पष्टीकरण पहा';
+            }
           }
         }
       }
