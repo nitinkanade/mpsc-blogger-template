@@ -3032,6 +3032,7 @@ body#layout .section {
                 <li class='nav-item'><a expr:href='data:blog.homepageUrl + &quot;search/label/Syllabus&quot;'>Syllabus</a></li>
                 <li class='nav-item'><a expr:href='data:blog.homepageUrl + &quot;search/label/Current%20Affairs&quot;'>Current Affairs</a></li>
                 <li class='nav-item'><a expr:href='data:blog.homepageUrl + &quot;search/label/Mock%20Tests&quot;'>Mock Tests</a></li>
+                <li class='nav-item'><a expr:href='data:blog.homepageUrl + &quot;p/mpsc-study-hub-all-pyq-question-papers.html&quot;'>Study Hub</a></li>
                 <li class='nav-item'><a expr:href='data:blog.homepageUrl + &quot;p/mpsc-negative-marking-score-calculator.html&quot;' style='color: #fbbf24; font-weight: 700;'>⚡ Marks Calculator</a></li>
               </b:if>
             </ul>
@@ -3913,9 +3914,9 @@ body#layout .section {
                 <ul class='footer-links-list'>
                   <li class='footer-link-item'><a expr:href='data:blog.homepageUrl + &quot;search/label/MPSC%20Rajyaseva&quot;'>MPSC Rajyaseva Prelims</a></li>
                   <li class='footer-link-item'><a expr:href='data:blog.homepageUrl + &quot;search/label/Group%20B%20Non-Gazetted&quot;'>Group B Combine Exam</a></li>
-                  <li class='footer-link-item'><a expr:href='data:blog.homepageUrl + &quot;search/label/Group%20C%20Clerk%20Typist&quot;'>Group C Combine Exam</a></li>
-                  <li class='footer-link-item'><a expr:href='data:blog.homepageUrl + &quot;search/label/CDPO%20Exam&quot;'>CDPO Question Papers</a></li>
-                  <li class='footer-link-item'><a expr:href='data:blog.homepageUrl + &quot;search/label/Agriculture%20Service&quot;'>Maharashtra Agri Service</a></li>
+                  <li class='footer-link-item'><a expr:href='data:blog.homepageUrl + &quot;search/label/Group%20C%20Combine&quot;'>Group C Combine Exam</a></li>
+                  <li class='footer-link-item'><a expr:href='data:blog.homepageUrl + &quot;search/label/MPSC%20Mains&quot;'>MPSC Mains Strategy &amp; PYQ</a></li>
+                  <li class='footer-link-item'><a expr:href='data:blog.homepageUrl + &quot;search/label/Cut-Off%20Marks&quot;'>MPSC Cut-Off Marks</a></li>
                 </ul>
               </div>
             </b:includable>
@@ -4028,11 +4029,14 @@ body#layout .section {
         <li class='drawer-nav-item'><a expr:href='data:blog.homepageUrl'>Home</a></li>
         <li class='drawer-nav-item'><a expr:href='data:blog.homepageUrl + &quot;search/label/MPSC%20Prelims&quot;'>Prelims PYQ</a></li>
         <li class='drawer-nav-item'><a expr:href='data:blog.homepageUrl + &quot;search/label/MPSC%20Mains&quot;'>Mains PYQ</a></li>
-        <li class='drawer-nav-item'><a expr:href='data:blog.homepageUrl + &quot;search/label/Group%20B%20Combine&quot;'>Group B Combine</a></li>
+        <li class='drawer-nav-item'><a expr:href='data:blog.homepageUrl + &quot;search/label/Group%20B%20Non-Gazetted&quot;'>Group B Combine</a></li>
         <li class='drawer-nav-item'><a expr:href='data:blog.homepageUrl + &quot;search/label/Group%20C%20Combine&quot;'>Group C Combine</a></li>
         <li class='drawer-nav-item'><a expr:href='data:blog.homepageUrl + &quot;search/label/Answer%20Key&quot;'>Official Answer Keys</a></li>
         <li class='drawer-nav-item'><a expr:href='data:blog.homepageUrl + &quot;search/label/Syllabus&quot;'>Exam Syllabus</a></li>
         <li class='drawer-nav-item'><a expr:href='data:blog.homepageUrl + &quot;search/label/Cut-Off%20Marks&quot;'>Cut-Off Marks</a></li>
+        <li class='drawer-nav-item'><a expr:href='data:blog.homepageUrl + &quot;search/label/Mock%20Tests&quot;'>Mock Tests</a></li>
+        <li class='drawer-nav-item'><a expr:href='data:blog.homepageUrl + &quot;p/mpsc-study-hub-all-pyq-question-papers.html&quot;'>MPSC Study Hub</a></li>
+        <li class='drawer-nav-item'><a expr:href='data:blog.homepageUrl + &quot;p/mpsc-negative-marking-score-calculator.html&quot;' style='color: var(--primary); font-weight: 700;'>&#9889; Marks Calculator</a></li>
       </ul>
     </div>
   </aside>

@@ -195,9 +195,9 @@ Ensure the quiz includes 2 to 3 Maharashtra-specific questions (state schemes, C
   <div>
     <strong style="font-size: 1rem; color: #b45309;">विद्यार्थ्यांसाठी महत्त्वाचे अभ्यास साहित्य व टूल्स:</strong>
     <ul style="margin: 0.5rem 0 0 1.25rem; line-height: 1.6;">
-      <li><a href="/search/label/MPSC%20Current%20Affairs" style="color: #2563eb; text-decoration: underline;">दैनिक MPSC चालू घडामोडी प्रश्नसंच (सर्व दिवस)</a></li>
+      <li><a href="/search/label/Current%20Affairs" style="color: #2563eb; text-decoration: underline;">दैनिक MPSC चालू घडामोडी प्रश्नसंच (सर्व दिवस)</a></li>
       <li><a href="/p/mpsc-negative-marking-score-calculator.html" style="color: #2563eb; text-decoration: underline;">MPSC निगेटिव्ह मार्किंग गुण कॅल्क्युलेटर (१/४ निगेटिव्ह गुण तपासा)</a></li>
-      <li><a href="/search/label/Maharashtra%20GK" style="color: #2563eb; text-decoration: underline;">महाराष्ट्र राज्य विशेष योजना व मंत्रिमंडळ निर्णय</a></li>
+      <li><a href="/search/label/Maharashtra" style="color: #2563eb; text-decoration: underline;">महाराष्ट्र राज्य विशेष योजना व मंत्रिमंडळ निर्णय</a></li>
       <li><a href="/search/label/Indian%20Polity" style="color: #2563eb; text-decoration: underline;">MPSC भारतीय राज्यघटना व पंचायत राज सराव प्रश्न</a></li>
       <li><a href="/search/label/MPSC%20Prelims" style="color: #2563eb; text-decoration: underline;">MPSC राज्यसेवा व संयुक्त पूर्व परीक्षा मागील वर्षांचे PYQs</a></li>
     </ul>
