@@ -1,0 +1,12 @@
+User-agent: Mediapartners-Google
+Disallow:
+
+User-agent: *
+Disallow: /search?
+Disallow: /*?updated-max=
+Disallow: /*?showComment=
+Disallow: /share-widget
+Allow: /
+
+Sitemap: https://mpsc.ni18.in/sitemap.xml
+Sitemap: https://mpsc.ni18.in/sitemap-pages.xml
